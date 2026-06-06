@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+offline_data/
+logs/
+*.log
+route_resume_*.json
+routes_cache_*.json
+venv/
+.venv/
+*.egg-info/
+.DS_Store
+Thumbs.db
