@@ -1,9 +1,9 @@
-pygame==2.5.2
-pyttsx3==2.90
-gTTS==2.5.1
+flask==3.0.3
 requests==2.31.0
 pytz==2024.1
-keyboard==0.13.5
-python-obd==0.7.1
+RPi.GPIO==0.7.1
 spidev==3.6
-RPi.GPIO==0.7.1; platform_machine == 'armv7l'
+obd==0.7.1
+pyttsx3==2.90
+pyserial==3.5
+schedule==1.2.2

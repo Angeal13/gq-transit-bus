@@ -95,3 +95,17 @@ src/
 ## License
 
 MIT — owned by the project owner. See LICENSE.
+
+## Audio / TTS
+
+The bus uses **pyttsx3 + espeak-ng** for all stop announcements — fully offline.
+
+- No internet is required at runtime for audio.
+- `espeak-ng` with Spanish (`es`), French (`fr`), and English (`en`) voice data
+  is installed once by `install.sh` during initial setup (internet required then).
+- After installation the Pi never makes a network call for TTS.
+- Speech rate is set to 130 wpm — slower than default for clarity in a moving bus.
+- If a language voice is not found, the system falls back to Spanish.
+
+**gTTS has been removed.** It required internet access per announcement, which
+is incompatible with the intranet-only BIOKO_BUS network.

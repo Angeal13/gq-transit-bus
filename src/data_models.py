@@ -44,7 +44,8 @@ class Bus:
         else:
             self.direction = 1
 
-    def next_stop(self):
+    def advance(self):
+        """Move bus to the next stop (called after operator presses button)."""
         if self.route.route_type == 1:
             self.current_stop_index = (self.current_stop_index + 1) % len(self.route.stops)
         else:
@@ -60,6 +61,25 @@ class Bus:
                     self.current_stop_index += 1
                 else:
                     self.current_stop_index -= 1
+
+    @property
+    def next_stop(self) -> Optional['StopInfo']:
+        """Return the NEXT stop after current without advancing the index.
+
+        Used by record_stop() to tell the server where the bus is heading so
+        the map can display EN_TRANSITO immediately after button press.
+        Returns None if the bus is at the last stop of a one-way route.
+        """
+        stops = self.route.stops
+        n     = len(stops)
+        idx   = self.current_stop_index
+        if self.route.route_type == 1:
+            return stops[(idx + 1) % n]
+        else:
+            if self.direction == 1:
+                return stops[idx + 1] if idx < n - 1 else None
+            else:
+                return stops[idx - 1] if idx > 0 else None
 
     @property
     def current_stop(self) -> StopInfo:

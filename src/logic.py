@@ -146,33 +146,49 @@ class StopTracker:
         self.tz                = pytz.timezone(tz)
 
     def record_stop(self):
-        """Send stop event to server and update heartbeat position."""
-        now   = datetime.now(self.tz)
+        """Send stop event to server and update heartbeat position.
+
+        Sends bus_status='AT_STOP' plus next stop coordinates so the server
+        and Leaflet map can immediately switch to EN_TRANSITO state toward
+        the next stop — simulating real-time GPS tracking between stops.
+        """
+        now       = datetime.now(self.tz)
+        next_stop = self.bus.next_stop  # StopInfo or None at end of route
+
         event = {
-            'bus_id':    self.bus.system_id,
-            'route_id':  self.bus.id,
-            'stop_name': self.bus.current_stop_name,
-            'lat':       self.bus.current_lat,
-            'lng':       self.bus.current_lng,
-            'direction': self.bus.final_destination,
-            'client':    self.bus.route.client,
-            'region':    self.bus.route.region,
-            'language':  self.bus.route.language,
-            'timezone':  self.bus.route.timezone,
-            'timestamp': now.isoformat(),
+            'bus_id':         self.bus.system_id,
+            'route_id':       self.bus.id,
+            'stop_name':      self.bus.current_stop_name,
+            'lat':            self.bus.current_lat,
+            'lng':            self.bus.current_lng,
+            'direction':      self.bus.final_destination,
+            'bus_status':     'AT_STOP',
+            'next_stop_name': next_stop.name if next_stop else None,
+            'next_lat':       next_stop.lat  if next_stop else None,
+            'next_lng':       next_stop.lng  if next_stop else None,
+            'client':         self.bus.route.client,
+            'region':         self.bus.route.region,
+            'language':       self.bus.route.language,
+            'timezone':       self.bus.route.timezone,
+            'timestamp':      now.isoformat(),
         }
         post_stop_event(event)
         self.heartbeat_service.update_position(
-            bus_id    = self.bus.system_id,
-            route_id  = self.bus.id,
-            stop_name = self.bus.current_stop_name,
-            lat       = self.bus.current_lat,
-            lng       = self.bus.current_lng,
-            direction = self.bus.final_destination,
+            bus_id         = self.bus.system_id,
+            route_id       = self.bus.id,
+            stop_name      = self.bus.current_stop_name,
+            lat            = self.bus.current_lat,
+            lng            = self.bus.current_lng,
+            direction      = self.bus.final_destination,
+            bus_status     = 'AT_STOP',
+            next_stop_name = next_stop.name if next_stop else None,
+            next_lat       = next_stop.lat  if next_stop else None,
+            next_lng       = next_stop.lng  if next_stop else None,
         )
         self.resume_service.save(self.bus)
         logger.info(f"Stop recorded: {self.bus.current_stop_name} "
-                    f"({self.bus.current_lat:.5f}, {self.bus.current_lng:.5f})")
+                    f"({self.bus.current_lat:.5f}, {self.bus.current_lng:.5f}) "
+                    f"→ next: {next_stop.name if next_stop else 'END'}")
 
     def announce_stop(self, audio_system: AudioSystem, exit_event):
         lang     = self.bus.route.language or 'es'

@@ -162,7 +162,7 @@ class BusTrackingSystem:
                 print("Route completed.")
                 break
 
-            tracker.bus.next_stop()
+            tracker.bus.advance()
             tracker.record_stop()
             tracker.announce_stop(self.audio, self.controller.exit_event)
 

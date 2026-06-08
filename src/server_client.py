@@ -212,16 +212,30 @@ class HeartbeatService:
         self._stop.set()
 
     def update_position(self, bus_id: str, route_id: str,
-                        stop_name: str, lat: float, lng: float, direction: str):
+                        stop_name: str, lat: float, lng: float, direction: str,
+                        bus_status: str = 'AT_STOP',
+                        next_stop_name: str = None,
+                        next_lat: float = None,
+                        next_lng: float = None):
+        """Update the live position payload sent every 30 s.
+
+        bus_status: 'AT_STOP' when operator pressed button.
+                    The server transitions to 'IN_TRANSIT' automatically after
+                    receiving the heartbeat with next_stop info.
+        """
         with self._lock:
             self._payload = {
-                'bus_id':    bus_id,
-                'route_id':  route_id,
-                'stop_name': stop_name,
-                'lat':       lat,
-                'lng':       lng,
-                'direction': direction,
-                'timestamp': datetime.utcnow().isoformat() + 'Z',
+                'bus_id':         bus_id,
+                'route_id':       route_id,
+                'stop_name':      stop_name,
+                'lat':            lat,
+                'lng':            lng,
+                'direction':      direction,
+                'bus_status':     bus_status,
+                'next_stop_name': next_stop_name,
+                'next_lat':       next_lat,
+                'next_lng':       next_lng,
+                'timestamp':      datetime.utcnow().isoformat() + 'Z',
             }
 
     def _loop(self):
